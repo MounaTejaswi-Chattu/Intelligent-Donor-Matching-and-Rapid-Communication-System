@@ -10,7 +10,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Database connection settings
 $servername = "localhost";
 $username = "root";
-$password = "Bhavani@2005";
+$password = "lucky2@@9";
 $dbname = "donor_registration1";
 
 // Create connection
@@ -21,8 +21,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Initialize a variable to store the popup message
+$message = "";
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $district = $_POST['district'];
     $camp_area = $_POST['camp_area'];
     $camp_date = $_POST['camp_date'];
@@ -40,17 +42,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sssss", $district, $camp_area, $camp_date, $camp_time_from_24, $camp_time_to_24);
 
     if ($stmt->execute()) {
-        echo "Camp details updated successfully!";
+        $message = "Camp details updated successfully!";
     } else {
-        echo "Error updating camp details: " . $conn->error;
+        $message = "Error updating camp details: " . $conn->error;
     }
 
     $stmt->close();
 }
 
 $conn->close();
-
-// Redirect back to admin dashboard
-header("location: admin_dashboard.php");
-exit;
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Camp Details</title>
+    <script>
+        // Display popup if a message is set
+        document.addEventListener("DOMContentLoaded", function () {
+            const message = "<?php echo addslashes($message); ?>";
+            if (message) {
+                alert(message);
+                // Redirect to the admin dashboard after showing the alert
+                window.location.href = "admin_dashboard.php";
+            }
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>

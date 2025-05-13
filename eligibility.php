@@ -17,7 +17,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Database connection settings
 $servername = "localhost";
 $username = "root"; // Change as needed
-$password = "Bhavani@2005"; // Change as needed
+$password = "lucky2@@9"; // Change as needed
 $dbname = "donor_registration1"; // Change to your database name
 
 // Create connection

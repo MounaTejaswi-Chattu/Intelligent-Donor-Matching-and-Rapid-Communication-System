@@ -9,11 +9,8 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 // Handle logout
 if (isset($_POST['logout'])) {
-    // Destroy the session
     session_unset();
     session_destroy();
-
-    // Redirect to index.php or any other page
     header("Location: index.php");
     exit();
 }
@@ -21,7 +18,7 @@ if (isset($_POST['logout'])) {
 // Database connection settings
 $servername = "localhost";
 $username = "root";
-$password = "Bhavani@2005";
+$password = "lucky2@@9";
 $dbname = "donor_registration1";
 
 // Create connection
@@ -47,65 +44,7 @@ $blood_donation_result = $conn->query($blood_donation_query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            background-color: #f9f9f9;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #ff3333;
-            flex-grow: 1;
-        }
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            display: inline-block;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -115,8 +54,9 @@ $blood_donation_result = $conn->query($blood_donation_query);
                 <a class="btn" href="update_camp.php">Update Camp Details</a>
                 <a class="btn" href="donordetails.php">Enter Donated Donor Details</a>
                 <a class="btn" href="donatedd.php">Donated</a>
-                <form action="admin_dashboard.php" method="post" style="margin: 0;">
-                    <button type="submit" name="logout" class="btn">Logout</button>
+            <a class="btn" href="send_alerts.php">Send Alerts</a>
+                <form action="admin_dashboard.php" method="post" class="logout-form">
+                    <button type="submit" name="logout" class="btn btn-logout">Logout</button>
                 </form>
             </div>
         </div>
@@ -152,12 +92,12 @@ $blood_donation_result = $conn->query($blood_donation_query);
                           </tr>";
                 }
             } else {
-                echo "<tr><td colspan='10'>No records found</td></tr>";
+                echo "<tr><td colspan='10'>No donors found.</td></tr>";
             }
             ?>
         </table>
 
-        <h2>Blood Donation Registration Details (Sorted by District)</h2>
+        <h2>Blood Donation Registration Details</h2>
         <table>
             <tr>
                 <th>District</th>
@@ -177,17 +117,13 @@ $blood_donation_result = $conn->query($blood_donation_query);
                             <td>{$row['blood_group']}</td>
                             <td>{$row['camp_area']}</td>
                             <td>{$row['camp_date']}</td>
-                          </tr>";
+                        </tr>";
                 }
             } else {
-                echo "<tr><td colspan='6'>No records found</td></tr>";
+                echo "<tr><td colspan='6'>No registration details found.</td></tr>";
             }
             ?>
         </table>
     </div>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>

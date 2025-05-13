@@ -1,5 +1,4 @@
 <?php
-// Start the session
 session_start();
 
 // Check if the user is logged in
@@ -8,10 +7,9 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-// Database connection settings
 $servername = "localhost";
 $username = "root";
-$password = "Bhavani@2005";
+$password = "lucky2@@9";
 $dbname = "donor_registration1";
 
 // Create connection
@@ -22,22 +20,21 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle district filter
 $selected_district = isset($_POST['district']) ? $_POST['district'] : '';
 
 // Fetch unique districts for the dropdown
 $district_query = "SELECT DISTINCT district FROM donorsdetails ORDER BY district";
 $district_result = $conn->query($district_query);
 
-// Fetch donor registration details based on selected district
-if ($selected_district == '' || $selected_district == 'Select') {
-    $query = "SELECT id, name, phone, blood_group, district, camp_area, camp_date FROM donorsdetails";
+// Fetch donors who haven't been thanked
+if (empty($selected_district)) {
+    $query = "SELECT id, name, phone, blood_group, district, camp_area, camp_date FROM donorsdetails WHERE thanked = 0";
 } else {
-    $query = "SELECT id, name, phone, blood_group, district, camp_area, camp_date FROM donorsdetails WHERE district = ?";
+    $query = "SELECT id, name, phone, blood_group, district, camp_area, camp_date FROM donorsdetails WHERE thanked = 0 AND district = ?";
 }
 
 $stmt = $conn->prepare($query);
-if ($selected_district != '' && $selected_district != 'Select') {
+if (!empty($selected_district)) {
     $stmt->bind_param("s", $selected_district);
 }
 $stmt->execute();
@@ -69,6 +66,22 @@ $result = $stmt->get_result();
         h1 {
             text-align: center;
             color: #ff3333;
+        }
+        .back-btn {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .back-btn:hover {
+            background-color: #c82333;
         }
         form {
             margin-bottom: 20px;
@@ -114,15 +127,23 @@ $result = $stmt->get_result();
         .btn-thank-you:hover {
             background-color: #218838;
         }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
+        .btn-history {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .btn-history:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Admin Dashboard</h1>
+        <a class="back-btn" href="admin_dashboard.php">Back</a>
         <form method="post">
             <label for="district">Filter by District:</label>
             <select id="district" name="district" onchange="this.form.submit()">
@@ -149,7 +170,6 @@ $result = $stmt->get_result();
                 <th>Camp Date</th>
                 <th>Actions</th>
             </tr>
-            <a class="btn" href="admin_dashboard.php">Back</a>
             <?php
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
@@ -162,8 +182,9 @@ $result = $stmt->get_result();
                             <td>{$row['camp_date']}</td>
                             <td>
                                 <form action='thankyou.php' method='POST'>
+                                    <input type='hidden' name='donor_id' value='{$row['id']}'>
                                     <input type='hidden' name='donor_name' value='{$row['name']}'>
-                                    <button type='submit' class='btn btn-thank-you'>Thank You</button>
+                                    <button type='submit' class='btn-thank-you'>Thank You</button>
                                 </form>
                             </td>
                           </tr>";
@@ -173,11 +194,12 @@ $result = $stmt->get_result();
             }
             ?>
         </table>
+        <a href="history.php" class="btn-history">View History</a>
     </div>
 </body>
 </html>
 
 <?php
-// Close connection
+$stmt->close();
 $conn->close();
 ?>

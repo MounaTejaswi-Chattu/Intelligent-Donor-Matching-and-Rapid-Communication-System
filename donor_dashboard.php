@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Database connection settings
 $servername = "localhost";
 $username = "root"; // Change as needed
-$password = "Bhavani@2005"; // Change as needed
+$password = "lucky2@@9"; // Change as needed
 $dbname = "donor_registration1"; // Change to your database name
 
 // Create connection
@@ -61,8 +61,15 @@ if ($result === FALSE) {
     ";
 }
 
+// Fetch registered camps for the logged-in donor
+$sql = "SELECT * FROM registrations WHERE name = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $loggedInDonorName);
+$stmt->execute();
+$campsResult = $stmt->get_result();
+
+// Close the prepared statement for the thank you message query
 $stmt->close();
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -133,6 +140,20 @@ $conn->close();
             margin: 10px 0;
             color: #155724;
         }
+        .camps-details {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .camp-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #e2e3e5;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -155,8 +176,43 @@ $conn->close();
             <div class="rule">14. Should not have donated blood in the last 12 weeks (for whole blood). Plasma or platelets have different intervals.</div>
             <div class="rule">15. Should not have been treated with blood products in the past year.</div>
         </div>
+
+        <!-- Registered Camp Button -->
+        <button class="btn" onclick="toggleCampDetails()">Registered Camp</button>
+
+        <!-- Registered Camp Details -->
+        <div id="camps-details" class="camps-details">
+            <?php if ($campsResult->num_rows > 0): ?>
+                <?php while ($camp = $campsResult->fetch_assoc()): ?>
+                    <div class="camp-item">
+                        <strong>Camp Area:</strong> <?php echo $camp['camp_area']; ?><br>
+                        <strong>Camp Date:</strong> <?php echo $camp['camp_date']; ?><br>
+                        <strong>District:</strong> <?php echo $camp['district']; ?><br>
+                        <strong>Blood Group:</strong> <?php echo $camp['blood_group']; ?>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p>No camps registered yet.</p>
+            <?php endif; ?>
+        </div>
+
         <a href="view_venue.php" class="btn btn-back">View Venue</a>
         <a class="btn" href="index.php">Logout</a>
     </div>
+
+    <script>
+        function toggleCampDetails() {
+            var campDetails = document.getElementById('camps-details');
+            if (campDetails.style.display === 'none' || campDetails.style.display === '') {
+                campDetails.style.display = 'block';
+            } else {
+                campDetails.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
+
+<?php
+$conn->close();
+?>
