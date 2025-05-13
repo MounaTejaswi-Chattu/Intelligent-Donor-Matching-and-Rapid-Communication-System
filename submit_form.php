@@ -3,7 +3,7 @@
 require_once "config.php";
 $servername = "localhost";
 $username = "root";
-$password = "Bhavani@2005";
+$password = "lucky2@@9";
 $dbname = "donor_registration1";
 
 // Create connection

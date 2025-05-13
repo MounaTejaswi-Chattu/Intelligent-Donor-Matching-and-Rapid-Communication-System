@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";  // Replace with your database username
-$password = "Bhavani@2005";  // Replace with your database password
+$password = "lucky2@@9";  // Replace with your database password
 $dbname = "donor_registration1";  // Replace with your database name
 
 // Create connection

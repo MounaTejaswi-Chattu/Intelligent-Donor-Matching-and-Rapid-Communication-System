@@ -114,9 +114,10 @@
             <option value="west-godavari">West Godavari</option>
         </select>
         <button type="submit" name="view_venue">View Venues</button>
-        <a class="btn" href="index.php">Logout</a>
+        <div class="header">
+            <a href="donor_dashboard.php" class="btn">Back to Dashboard</a>
+        </div>
     </form>
-
     <table border="1">
         <thead>
             <tr>

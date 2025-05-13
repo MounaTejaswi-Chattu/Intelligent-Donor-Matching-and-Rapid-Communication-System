@@ -50,9 +50,24 @@
         button:hover {
             background-color: #c9302c;
         }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #d9534f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background-color: #c9302c;
+        }
     </style>
 </head>
 <body>
+    <a href="admin_dashboard.php" class="back-button">Back</a>
     <h1>Entering the donated details of the donor</h1>
     <form id="registrationForm" action="ddex.php" method="POST">
         <label for="name">Name:</label>
@@ -76,36 +91,35 @@
 
         <label for="district">District:</label>
         <select id="donor-district" name="district" required>
-        <option value="">Select</option>
-<option value="alluri-sitharama-raju">Alluri Sitharama Raju</option>
-<option value="anakapalli">Anakapalli</option>
-<option value="anantapur">Anantapur</option>
-<option value="annamayya">Annamayya</option>
-<option value="bapatla">Bapatla</option>
-<option value="chittoor">Chittoor</option>
-<option value="dr-b-r-ambedkar-konaseema">Dr. B.R. Ambedkar Konaseema</option>
-<option value="east-godavari">East Godavari</option>
-<option value="eluru">Eluru</option>
-<option value="guntur">Guntur</option>
-<option value="kadapa">Kadapa</option>
-<option value="kakinada">Kakinada</option>
-<option value="konaseema">Konaseema</option>
-<option value="krishna">Krishna</option>
-<option value="kurnool">Kurnool</option>
-<option value="manyam">Manyam</option>
-<option value="nandyal">Nandyal</option>
-<option value="nellore">Nellore</option>
-<option value="ntr">NTR</option>
-<option value="parvathipuram-manyam">Parvathipuram Manyam</option>
-<option value="prakasam">Prakasam</option>
-<option value="sri-sathya-sai">Sri Sathya Sai</option>
-<option value="srikakulam">Srikakulam</option>
-<option value="tirupati">Tirupati</option>
-<option value="visakhapatnam">Visakhapatnam</option>
-<option value="vizianagaram">Vizianagaram</option>
-<option value="west-godavari">West Godavari</option>
-
-                        </select>
+            <option value="">Select</option>
+            <option value="alluri-sitharama-raju">Alluri Sitharama Raju</option>
+            <option value="anakapalli">Anakapalli</option>
+            <option value="anantapur">Anantapur</option>
+            <option value="annamayya">Annamayya</option>
+            <option value="bapatla">Bapatla</option>
+            <option value="chittoor">Chittoor</option>
+            <option value="dr-b-r-ambedkar-konaseema">Dr. B.R. Ambedkar Konaseema</option>
+            <option value="east-godavari">East Godavari</option>
+            <option value="eluru">Eluru</option>
+            <option value="guntur">Guntur</option>
+            <option value="kadapa">Kadapa</option>
+            <option value="kakinada">Kakinada</option>
+            <option value="konaseema">Konaseema</option>
+            <option value="krishna">Krishna</option>
+            <option value="kurnool">Kurnool</option>
+            <option value="manyam">Manyam</option>
+            <option value="nandyal">Nandyal</option>
+            <option value="nellore">Nellore</option>
+            <option value="ntr">NTR</option>
+            <option value="parvathipuram-manyam">Parvathipuram Manyam</option>
+            <option value="prakasam">Prakasam</option>
+            <option value="sri-sathya-sai">Sri Sathya Sai</option>
+            <option value="srikakulam">Srikakulam</option>
+            <option value="tirupati">Tirupati</option>
+            <option value="visakhapatnam">Visakhapatnam</option>
+            <option value="vizianagaram">Vizianagaram</option>
+            <option value="west-godavari">West Godavari</option>
+        </select>
 
         <label for="camp_area">Camp Area:</label>
         <input type="text" id="camp_area" name="camp_area" required><br>

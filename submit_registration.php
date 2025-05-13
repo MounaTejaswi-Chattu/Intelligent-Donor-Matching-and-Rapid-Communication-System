@@ -4,6 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $district = $_POST['district'];
     $camp_area = $_POST['camp_area'];
     $camp_date = $_POST['camp_date'];
+
 } else {
     // Set default values or get from the URL parameters
     $district = isset($_GET['district']) ? $_GET['district'] : '';
@@ -16,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register for Blood Donation Camp</title>
     <style>
         body {
@@ -24,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #333;
             margin: 0;
             padding: 20px;
+            position: relative;
         }
         h1 {
             text-align: center;
@@ -67,9 +70,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .disabled-input {
             background-color: #e9ecef;
         }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #d9534f;
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #c9302c;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Back Button at Top Right Corner -->
+    <a href="donor_dashboard.php" class="back-button">Back to Dashboard</a>
+
     <h1>Register for Blood Donation Camp</h1>
     <form id="registrationForm" action="venueregister.php" method="POST">
         <input type="hidden" name="district" value="<?php echo htmlspecialchars($district); ?>">
@@ -105,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </select><br>
 
         <button type="submit">Submit</button>
-        <a class="btn" href="index.php">Logout</a>
     </form>
 </body>
 </html>
