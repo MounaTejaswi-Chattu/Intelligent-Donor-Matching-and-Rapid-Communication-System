@@ -21,71 +21,69 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch distinct blood groups for the dropdown
+// Fetch distinct blood groups for dropdown
 $blood_groups_query = "SELECT DISTINCT blood_group FROM donors";
 $blood_groups_result = $conn->query($blood_groups_query);
 
-// Initialize blood group filter
-$blood_group_filter = isset($_POST['blood_group']) ? $_POST['blood_group'] : "";
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-// Handle the WhatsApp message functionality
+require 'phpmailer/src/Exception.php';
+require 'phpmailer/src/PHPMailer.php';
+require 'phpmailer/src/SMTP.php';
+
+// Initialize
+$blood_group_filter = isset($_POST['blood_group']) ? $_POST['blood_group'] : "";
 $message_data = [];
+$email_feedback = "";
+
+// If "Send Mail" button is clicked
+if (isset($_POST['send_mail'])) {
+    $donor_name  = $_POST['donor_name'];
+    $donor_email = $_POST['donor_email'];
+    $donor_group = $_POST['donor_group'];
+
+    $subject = "Urgent Blood Requirement - {$donor_group}";
+    $body = "Dear {$donor_name},<br><br>"
+          . "We urgently need your blood group ({$donor_group}).<br>"
+          . "Please contact us immediately if available.<br><br>"
+          . "Thank you for your support!";
+
+    $mail = new PHPMailer(true);
+    try {
+        // SMTP config
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = '22b01a4610@svecw.edu.in'; 
+        $mail->Password = 'rjvpngzifrqognmf'; // Gmail App Password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        $mail->setFrom('22b01a4610@svecw.edu.in', 'Blood Donation Team');
+        $mail->addAddress($donor_email, $donor_name);
+
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        $mail->send();
+        $email_feedback = "✅ Email successfully sent to {$donor_name} ({$donor_email})";
+    } catch (Exception $e) {
+        $email_feedback = "❌ Email to {$donor_name} failed: {$mail->ErrorInfo}";
+    }
+}
+
+// Fetch donors if filter is applied
 if ($blood_group_filter) {
-    $query = "
-        SELECT donors.name AS donor_name, donors.whatsapp, donors.blood_group, donors.dob,
-               MAX(donorsdetails.camp_date) AS last_donation_date
-        FROM donors
-        LEFT JOIN donorsdetails ON donors.phone = donorsdetails.phone
-        WHERE donors.blood_group = ?
-        GROUP BY donors.id";
+    $query = "SELECT name, email, blood_group FROM donors WHERE blood_group = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $blood_group_filter);
     $stmt->execute();
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
-        $last_donation_date = $row['last_donation_date'] ?? null;
-        $eligible = false;
-        $months_left = 0;
-        $days_left = 0;
-
-        // Check eligibility (6 months = 180 days)
-        if ($last_donation_date) {
-            $donation_date = new DateTime($last_donation_date);
-            $current_date = new DateTime();
-            $diff = $donation_date->diff($current_date);
-            $days_since_last_donation = $diff->days;
-
-            // Check if they donated in the last 6 months (180 days)
-            if ($days_since_last_donation >= 180) {
-                $eligible = true;
-            } else {
-                $days_left = 180 - $days_since_last_donation;
-                $months_left = floor($days_left / 30);
-                $days_left = $days_left % 30;
-            }
-        } else {
-            // If there is no donation record, treat it as eligible
-            $eligible = true;
-        }
-
-        // Prepare the data for display
-        if ($eligible) {
-            $message = urlencode("Dear {$row['donor_name']},\nWe urgently need your blood group ({$row['blood_group']}). Please contact us immediately if available. Thank you for your support!");
-            $whatsapp_link = "https://wa.me/{$row['whatsapp']}?text={$message}";
-            $message_data[] = [
-                'eligible' => true,
-                'name' => $row['donor_name'],
-                'whatsapp_link' => $whatsapp_link,
-            ];
-        } else {
-            $popup_message = "Donor {$row['donor_name']} is not eligible to donate. Next eligible in {$months_left} months and {$days_left} days.";
-            $message_data[] = [
-                'eligible' => false,
-                'name' => $row['donor_name'],
-                'popup_message' => $popup_message,
-            ];
-        }
+        $message_data[] = $row;
     }
 }
 ?>
@@ -97,65 +95,73 @@ if ($blood_group_filter) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Alerts</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        function showPopup(message) {
-            alert(message);
-        }
-    </script>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #f4f4f4; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Send Alerts</h1>
-            <a href="admin_dashboard.php" class="btn">Back to Dashboard</a>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>Send Alerts</h1>
+        <a href="admin_dashboard.php" class="btn">Back to Dashboard</a>
+    </div>
 
-        <h2>Filter Donors by Blood Group</h2>
-        <form method="POST" action="send_alerts.php" class="filter-form">
-            <label for="blood_group">Select Blood Group:</label>
-            <select name="blood_group" id="blood_group">
-                <option value="">-- All Blood Groups --</option>
-                <?php
-                if ($blood_groups_result->num_rows > 0) {
-                    while ($row = $blood_groups_result->fetch_assoc()) {
-                        $selected = ($blood_group_filter === $row['blood_group']) ? 'selected' : '';
-                        echo "<option value='{$row['blood_group']}' $selected>{$row['blood_group']}</option>";
-                    }
+    <?php if ($email_feedback): ?>
+        <p class="<?php echo (strpos($email_feedback, '✅') !== false) ? 'success' : 'error'; ?>">
+            <?php echo $email_feedback; ?>
+        </p>
+    <?php endif; ?>
+
+    <h2>Filter Donors by Blood Group</h2>
+    <form method="POST" action="send_alerts.php" class="filter-form">
+        <label for="blood_group">Select Blood Group:</label>
+        <select name="blood_group" id="blood_group">
+            <option value="">-- All Blood Groups --</option>
+            <?php
+            if ($blood_groups_result->num_rows > 0) {
+                while ($row = $blood_groups_result->fetch_assoc()) {
+                    $selected = ($blood_group_filter === $row['blood_group']) ? 'selected' : '';
+                    echo "<option value='{$row['blood_group']}' $selected>{$row['blood_group']}</option>";
                 }
-                ?>
-            </select>
-            <button type="submit">Filter</button>
-        </form>
+            }
+            ?>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
 
-        <h2>Send WhatsApp Alerts</h2>
+    <?php if (!empty($message_data)): ?>
+        <h2>Eligible Donors</h2>
         <table>
             <tr>
                 <th>Name</th>
-                <th>Status</th>
+                <th>Blood Group</th>
+                <th>Email</th>
                 <th>Action</th>
             </tr>
-            <?php
-            if (!empty($message_data)) {
-                foreach ($message_data as $data) {
-                    if ($data['eligible']) {
-                        echo "<tr>
-                                <td>{$data['name']}</td>
-                                <td>Eligible</td>
-                                <td><a class='send-alert-btn' href='{$data['whatsapp_link']}' target='_blank'>Send Alert</a></td>
-                              </tr>";
-                    } else {
-                        echo "<tr>
-                                <td>{$data['name']}</td>
-                                <td>Not Eligible</td>
-                                <td><button class='btn' onclick=\"showPopup('{$data['popup_message']}')\">Send Alert</button></td>
-                              </tr>";
-                    }
-                }
-            } else {
-                echo "<tr><td colspan='3'>No donors found.</td></tr>";
-            }
-            ?>
+            <?php foreach ($message_data as $donor): ?>
+                <tr>
+                    <td><?php echo $donor['name']; ?></td>
+                    <td><?php echo $donor['blood_group']; ?></td>
+                    <td><?php echo $donor['email']; ?></td>
+                    <td>
+                        <form method="POST" action="send_alerts.php">
+                            <input type="hidden" name="donor_name" value="<?php echo $donor['name']; ?>">
+                            <input type="hidden" name="donor_email" value="<?php echo $donor['email']; ?>">
+                            <input type="hidden" name="donor_group" value="<?php echo $donor['blood_group']; ?>">
+                            <input type="hidden" name="blood_group" value="<?php echo $blood_group_filter; ?>">
+                            <button type="submit" name="send_mail">Send Mail</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
         </table>
-    </div>
+    <?php elseif ($blood_group_filter): ?>
+        <p>No donors found for this blood group.</p>
+    <?php endif; ?>
+</div>
 </body>
 </html>

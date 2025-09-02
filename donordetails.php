@@ -29,7 +29,10 @@
             margin-top: 10px;
             display: block;
         }
-        input[type="text"], select {
+        /* ✅ added input[type="email"] so email looks same */
+        input[type="text"], input[type="number"],
+        input[type="email"],
+        input[type="date"], select {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0 10px 0;
@@ -75,6 +78,9 @@
 
         <label for="phone">Phone Number:</label>
         <input type="text" id="phone" name="phone" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
 
         <label for="blood_group">Blood Group:</label>
         <select id="blood_group" name="blood_group" required>
@@ -125,7 +131,8 @@
         <input type="text" id="camp_area" name="camp_area" required><br>
 
         <label for="camp_date">Camp Date:</label>
-        <input type="text" id="camp_date" name="camp_date" required><br>
+        <input type="date" id="camp_date" name="camp_date" required><br>
+
 
         <button type="submit">Submit</button>
     </form>
